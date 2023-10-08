@@ -3,6 +3,7 @@ from typing import Any
 from line import Cog, Context, command
 from line.models import (
     ButtonsTemplate,
+    ImageMessage,
     PostbackAction,
     TemplateMessage,
     TextMessage,
@@ -53,4 +54,13 @@ class AboutCog(Cog):
 
     @command
     async def jkopay(self, ctx: Context) -> Any:
-        await ctx.reply_image("https://i.imgur.com/tRfyIkv.png")
+        await ctx.reply_multiple(
+            [
+                TextMessage(
+                    "點擊連結或掃描 QR Code\n\nhttps://www.jkopay.com/transfer?j=Transfer:909280661"
+                ),
+                ImageMessage(
+                    "https://i.imgur.com/tRfyIkv.png", "https://i.imgur.com/tRfyIkv.png"
+                ),
+            ]
+        )
