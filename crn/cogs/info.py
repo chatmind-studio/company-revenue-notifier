@@ -21,7 +21,7 @@ class AboutCog(Cog):
     @command
     async def about(self, ctx: Context) -> Any:
         template = ButtonsTemplate(
-            "「公司營收即時通知」是屬於聊思工作室的產品。",
+            "本 LINE 機器人為聊思工作室所屬的產品。",
             [
                 URIAction("聯絡", uri="https://line.me/R/ti/p/%40644rcaca"),
                 URIAction("查看其他作品", uri="https://line.me/R/ti/p/%40550sqmuw"),
