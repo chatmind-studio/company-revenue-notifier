@@ -48,8 +48,8 @@ class SetNotifyCog(Cog):
                 title="通知設定",
             )
             image = ImageMessage(
-                original_content_url="https://i.imgur.com/9k26h5s.png",
-                preview_image_url="https://i.imgur.com/9k26h5s.png",
+                original_content_url="https://i.imgur.com/3lUM6ow.png",
+                preview_image_url="https://i.imgur.com/3lUM6ow.png",
             )
             await ctx.reply_multiple(
                 [
