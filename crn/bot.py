@@ -110,7 +110,7 @@ class CompanyRevenueNotifier(Bot):
                     continue
                 await self.line_notify_api.notify(
                     user.line_notify_token,
-                    message=f"\n{stock} {get_report_title}\n\n{report}",
+                    message=f"\n{stock} {get_report_title()}\n\n{report}",
                 )
 
     async def setup_hook(self) -> None:
