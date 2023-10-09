@@ -45,8 +45,12 @@ class AboutCog(Cog):
             template=ButtonsTemplate(
                 "如果你覺得這個服務對您有幫助, 歡迎贊助我們",
                 [
-                    URIAction("信用卡或 PayPal", uri="https://ko-fi.com/chatmind"),
                     PostbackAction("街口支付", data="cmd=jkopay"),
+                    URIAction(
+                        "全支付",
+                        uri="https://service.pxpayplus.com/pxplus_redirect/page_redirect/jumj?memberCode=MC14292876&amount=0",
+                    ),
+                    URIAction("信用卡或 PayPal", uri="https://ko-fi.com/chatmind"),
                 ],
                 title="捐款支持",
             ),
