@@ -6,13 +6,15 @@ from line.models import (
     CarouselColumn,
     CarouselTemplate,
     PostbackAction,
+    QuickReply,
+    QuickReplyItem,
     TemplateMessage,
     TextMessage,
 )
 
 from ..bot import CompanyRevenueNotifier
 from ..models import Stock, User
-from ..utils import get_report_title
+from ..utils import get_report_title, split_list
 
 
 class CompanyCog(Cog):
@@ -85,14 +87,15 @@ class CompanyCog(Cog):
         await ctx.reply_text(f"已將 {stock} 加入追蹤清單")
 
     @command
-    async def list_companies(self, ctx: Context) -> None:
+    async def list_companies(self, ctx: Context, index: int = 0) -> None:
         user = await User.get(id=ctx.user_id)
         stocks = await user.stocks.all()
         if not stocks:
             return await ctx.reply_text("您尚未追蹤任何公司")
+        split_stocks = split_list(stocks, 10)
 
         columns: List[CarouselColumn] = []
-        for stock in stocks:
+        for stock in split_stocks[index]:
             await stock.fetch_related("revenue_report")
             column = CarouselColumn(
                 title=str(stock),
@@ -109,9 +112,30 @@ class CompanyCog(Cog):
             )
             columns.append(column)
 
+        quick_reply_items: List[QuickReplyItem] = []
+        if index > 0:
+            quick_reply_items.append(
+                QuickReplyItem(
+                    action=PostbackAction(
+                        label="⬅️ 上一頁", data=f"cmd=list_companies&index={index-1}"
+                    )
+                ),
+            )
+        if index < len(split_stocks) - 1:
+            quick_reply_items.append(
+                QuickReplyItem(
+                    action=PostbackAction(
+                        label="➡️ 下一頁", data=f"cmd=list_companies&index={index+1}"
+                    )
+                )
+            )
+
         await ctx.reply_template(
             "追蹤清單",
             template=CarouselTemplate(columns=columns),
+            quick_reply=QuickReply(items=quick_reply_items)
+            if quick_reply_items
+            else None,
         )
 
     @command
