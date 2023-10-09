@@ -64,7 +64,7 @@ class AboutCog(Cog):
                     "https://i.imgur.com/tRfyIkv.png", "https://i.imgur.com/tRfyIkv.png"
                 ),
                 TextMessage(
-                    "點擊連結或掃描 QR Code\n\nhttps://www.jkopay.com/transfer?j=Transfer:909280661"
+                    "點擊下方連結或掃描上方 QR Code\n\nhttps://www.jkopay.com/transfer?j=Transfer:909280661"
                 ),
             ]
         )
