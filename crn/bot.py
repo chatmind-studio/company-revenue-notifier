@@ -13,7 +13,7 @@ from tortoise.exceptions import IntegrityError
 from .crawl import crawl_all_monthly_revenue_reports
 from .models import Stock, User
 from .rich_menu import RICH_MENU
-from .utils import get_now, get_today
+from .utils import get_now, get_report_title, get_today
 
 
 class CompanyRevenueNotifier(Bot):
@@ -109,7 +109,7 @@ class CompanyRevenueNotifier(Bot):
                     continue
                 await self.line_notify_api.notify(
                     user.line_notify_token,
-                    message=f"\n{stock} 在 {today.month-1} 月份的營收出爐了\n\n{report}",
+                    message=f"\n{stock} {get_report_title}\n\n{report}",
                 )
 
     async def setup_hook(self) -> None:

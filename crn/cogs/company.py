@@ -10,7 +10,7 @@ from line.models import (
 
 from ..bot import CompanyRevenueNotifier
 from ..models import Stock, User
-from ..utils import get_today
+from ..utils import get_report_title, get_today
 
 
 class CompanyCog(Cog):
@@ -66,7 +66,7 @@ class CompanyCog(Cog):
         await user.save()
         if stock.revenue_report:
             return await ctx.reply_text(
-                f"已將 {stock} 加入追蹤清單\n\n在追蹤之前, {stock} 已公佈 {get_today().month-1} 月份營收報表, 點擊「已追蹤清單」即可查看"
+                f"已將 {stock} 加入追蹤清單\n\n在追蹤之前, {stock} 已公佈 {get_report_title()}, 點擊「已追蹤清單」即可查看"
             )
         await ctx.reply_text(f"已將 {stock} 加入追蹤清單")
 
@@ -82,7 +82,7 @@ class CompanyCog(Cog):
             await stock.fetch_related("revenue_report")
             column = CarouselColumn(
                 title=str(stock),
-                text=f"{'已' if stock.revenue_report else '尚未'}公佈 {get_today().month-1} 月份營收",
+                text=f"{'已' if stock.revenue_report else '尚未'}公佈 {get_report_title()}",
                 actions=[
                     PostbackAction(
                         "取消追蹤", data=f"cmd=remove_company&stock_id={stock.id}"
@@ -113,6 +113,6 @@ class CompanyCog(Cog):
         stock = await Stock.get(id=stock_id).prefetch_related("revenue_report")
         report = stock.revenue_report
         if report is None:
-            return await ctx.reply_text(f"{stock} 尚未公佈 {get_today().month-1} 月份營收")
+            return await ctx.reply_text(f"{stock} 尚未公佈 {get_report_title()}")
 
-        await ctx.reply_text(f"{stock} {get_today().month-1} 月份營收\n\n{report}")
+        await ctx.reply_text(f"{stock} {get_report_title()}\n\n{report}")
