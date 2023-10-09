@@ -74,7 +74,7 @@ class RevenueReport(Model):
         return (
             f"當月營收: {self.current_month_revenue:,}\n"
             f"上月營收: {self.last_month_revenue:,}\n"
-            f"去年同月營收: {self.last_year_current_month_revenue:,}\n"
+            f"去年當月營收: {self.last_year_current_month_revenue:,}\n"
             f"上月比較增減: {self.last_month_diff:+.2f}%\n"
             f"去年同月增減: {self.last_year_current_month_diff:+.2f}%\n"
             f"當月累計營收: {self.current_month_accum_revenue:,}\n"
