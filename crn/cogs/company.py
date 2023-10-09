@@ -6,6 +6,8 @@ from line.models import (
     CarouselColumn,
     CarouselTemplate,
     PostbackAction,
+    TemplateMessage,
+    TextMessage,
 )
 
 from ..bot import CompanyRevenueNotifier
@@ -20,22 +22,19 @@ class CompanyCog(Cog):
 
     @command
     async def add_company(self, ctx: Context, stock_id: Optional[str] = None) -> None:
+        template_message = TemplateMessage(
+            "追蹤新公司",
+            template=ButtonsTemplate(
+                "請輸入要追蹤的公司的股票代號或股票簡稱\n\n例如: 2330 或 台積電",
+                [PostbackAction("打開鍵盤", data="ignore", input_option="openKeyboard")],
+            ),
+        )
         if stock_id is None:
             user = await User.get(id=ctx.user_id)
             user.temp_data = "cmd=add_company&stock_id={text}"
             await user.save()
 
-            return await ctx.reply_template(
-                "追蹤新公司",
-                template=ButtonsTemplate(
-                    "請輸入要追蹤的公司的股票代號或簡稱\n例如: 2330, 台積電, 黑松, 1234",
-                    [
-                        PostbackAction(
-                            "打開鍵盤", data="ignore", input_option="openKeyboard"
-                        )
-                    ],
-                ),
-            )
+            return await ctx.reply_multiple([template_message])
 
         if stock_id.isdigit():
             stock = await Stock.get_or_none(id=stock_id)
@@ -44,7 +43,12 @@ class CompanyCog(Cog):
                     f"https://stock-api.seriaati.xyz/stocks/{stock_id}"
                 ) as resp:
                     if resp.status != 200:
-                        return await ctx.reply_text(f"查無股票代號為 {stock_id} 的公司")
+                        return await ctx.reply_multiple(
+                            [
+                                TextMessage(f"查無股票代號為 {stock_id} 的公司, 請確認後重新輸入"),
+                                template_message,
+                            ]
+                        )
                     stock = await Stock.create(
                         id=stock_id, name=(await resp.json())["name"]
                     )
@@ -56,7 +60,12 @@ class CompanyCog(Cog):
                     params={"name": stock_id},
                 ) as resp:
                     if resp.status != 200:
-                        return await ctx.reply_text(f"查無簡稱為 {stock_id} 的公司")
+                        return await ctx.reply_multiple(
+                            [
+                                TextMessage(f"查無股票簡稱為 {stock_id} 的公司, 請確認後重新輸入"),
+                                template_message,
+                            ]
+                        )
                     stock = await Stock.create(
                         id=(await resp.json())[0]["id"], name=stock_id
                     )
