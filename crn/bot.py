@@ -71,8 +71,10 @@ class CompanyRevenueNotifier(Bot):
     async def run_tasks(self) -> None:
         now = get_now()
         if now.hour == 0 and now.minute < 1 and now.day == 1:
+            logging.info("Resetting revenue reports")
             await self.reset_reports()
-        elif now.minute == 30:
+        elif now.minute == 30 or now.minute == 0:
+            logging.info("Crawling and saving revenue reports")
             await self.crawl_and_save_revenue_reports()
 
     async def reset_reports(self):
