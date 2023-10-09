@@ -23,8 +23,8 @@ class AboutCog(Cog):
         template = ButtonsTemplate(
             "本 LINE 機器人為聊思工作室所屬的產品。",
             [
-                URIAction("聯絡", uri="https://line.me/R/ti/p/%40644rcaca"),
-                URIAction("查看其他作品", uri="https://line.me/R/ti/p/%40550sqmuw"),
+                URIAction("一對一私訊", uri="https://line.me/R/ti/p/%40644rcaca"),
+                # URIAction("查看其他作品", uri="https://line.me/R/ti/p/%40550sqmuw"),
             ],
             thumbnail_image_url="https://i.imgur.com/PUixVsA.png",
             title="聊思工作室",
