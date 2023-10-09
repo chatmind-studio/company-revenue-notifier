@@ -12,7 +12,7 @@ from line.models import (
 
 from ..bot import CompanyRevenueNotifier
 from ..models import Stock, User
-from ..utils import get_report_title, get_today
+from ..utils import get_report_title
 
 
 class CompanyCog(Cog):
@@ -29,11 +29,10 @@ class CompanyCog(Cog):
                 [PostbackAction("打開鍵盤", data="ignore", input_option="openKeyboard")],
             ),
         )
+        user = await User.get(id=ctx.user_id)
         if stock_id is None:
-            user = await User.get(id=ctx.user_id)
             user.temp_data = "cmd=add_company&stock_id={text}"
             await user.save()
-
             return await ctx.reply_multiple([template_message])
 
         if stock_id.isdigit():
@@ -43,6 +42,9 @@ class CompanyCog(Cog):
                     f"https://stock-api.seriaati.xyz/stocks/{stock_id}"
                 ) as resp:
                     if resp.status != 200:
+                        user.temp_data = "cmd=add_company&stock_id={text}"
+                        await user.save()
+
                         return await ctx.reply_multiple(
                             [
                                 TextMessage(f"查無股票代號為 {stock_id} 的公司, 請確認後重新輸入"),
@@ -60,6 +62,9 @@ class CompanyCog(Cog):
                     params={"name": stock_id},
                 ) as resp:
                     if resp.status != 200:
+                        user.temp_data = "cmd=add_company&stock_id={text}"
+                        await user.save()
+
                         return await ctx.reply_multiple(
                             [
                                 TextMessage(f"查無股票簡稱為 {stock_id} 的公司, 請確認後重新輸入"),
