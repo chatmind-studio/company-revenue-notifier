@@ -32,11 +32,15 @@ RICH_MENU = RichMenuRequest(
         ),
         RichMenuArea(
             bounds=RichMenuBounds(x=400, y=405, width=400, height=405),
-            action=PostbackAction(data="cmd=donate", label="支持贊助"),
+            action=PostbackAction(
+                data="cmd=donate", label="支持贊助", input_option="closeRichMenu"
+            ),
         ),
         RichMenuArea(
             bounds=RichMenuBounds(x=800, y=405, width=400, height=405),
-            action=PostbackAction(data="cmd=about", label="聯絡我們"),
+            action=PostbackAction(
+                data="cmd=about", label="聯絡我們", input_option="closeRichMenu"
+            ),
         ),
     ],
 )

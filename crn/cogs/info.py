@@ -60,11 +60,11 @@ class AboutCog(Cog):
     async def jkopay(self, ctx: Context) -> Any:
         await ctx.reply_multiple(
             [
-                TextMessage(
-                    "點擊連結或掃描 QR Code\n\nhttps://www.jkopay.com/transfer?j=Transfer:909280661"
-                ),
                 ImageMessage(
                     "https://i.imgur.com/tRfyIkv.png", "https://i.imgur.com/tRfyIkv.png"
+                ),
+                TextMessage(
+                    "點擊連結或掃描 QR Code\n\nhttps://www.jkopay.com/transfer?j=Transfer:909280661"
                 ),
             ]
         )
