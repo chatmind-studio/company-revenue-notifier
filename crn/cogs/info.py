@@ -43,7 +43,7 @@ class AboutCog(Cog):
         await ctx.reply_template(
             "支持贊助",
             template=ButtonsTemplate(
-                "如果你覺得這個服務對您有幫助, 歡迎贊助我們",
+                "如果你覺得這個服務對您有幫助, 歡迎贊助我們。您的支持將會用於維持伺服器運作和開發新功能。",
                 [
                     PostbackAction("街口支付", data="cmd=jkopay"),
                     URIAction(
