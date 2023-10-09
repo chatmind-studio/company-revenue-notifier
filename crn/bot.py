@@ -82,7 +82,6 @@ class CompanyRevenueNotifier(Bot):
             await stock.save()
 
     async def crawl_and_save_revenue_reports(self):
-        today = get_today()
         reports = await crawl_all_monthly_revenue_reports(self.session)
         for stock_id, report in reports:
             stock = await Stock.get_or_none(id=stock_id)

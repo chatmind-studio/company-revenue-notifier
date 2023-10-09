@@ -67,7 +67,7 @@ class CompanyCog(Cog):
                             ]
                         )
                     stock = await Stock.create(
-                        id=(await resp.json())[0]["id"], name=stock_id
+                        id=(await resp.json())["id"], name=stock_id
                     )
 
         user = await User.get(id=ctx.user_id)
