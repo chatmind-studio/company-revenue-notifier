@@ -31,7 +31,8 @@ class SetNotifyCog(Cog):
 
             user.line_notify_token = None
             user.line_notify_state = None
-            return await user.save()
+            await user.save()
+            return await ctx.reply_text("✅ 已解除綁定 LINE Notify")
 
         if not user.line_notify_token:
             state = secrets.token_urlsafe()
