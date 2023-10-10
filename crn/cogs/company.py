@@ -1,4 +1,4 @@
-from typing import List, Optional
+from typing import Any, List, Optional
 
 from line import Cog, Context, command
 from line.models import (
@@ -25,7 +25,7 @@ class CompanyCog(Cog):
     @command
     async def add_company(
         self, ctx: Context, stock_id_or_name: Optional[str] = None
-    ) -> None:
+    ) -> Any:
         user = await User.get(id=ctx.user_id)
         if not user.line_notify_token:
             return await ctx.reply_text(
@@ -37,7 +37,9 @@ class CompanyCog(Cog):
             template=ButtonsTemplate(
                 "請輸入要追蹤的公司的股票代號或股票簡稱\n例如: 2330 或 台積電",
                 [
-                    PostbackAction("打開鍵盤", data="ignore", input_option="openKeyboard"),
+                    PostbackAction(
+                        "打開鍵盤", data="cmd=open_keyboard", input_option="openKeyboard"
+                    ),
                     PostbackAction("查看已追蹤清單", data="cmd=list_companies"),
                     PostbackAction("取消", data="cmd=add_company_cancel"),
                 ],
@@ -112,14 +114,20 @@ class CompanyCog(Cog):
         )
 
     @command
-    async def add_company_cancel(self, ctx: Context) -> None:
+    async def open_keyboard(self, ctx: Context) -> Any:
+        user = await User.get(id=ctx.user_id)
+        user.temp_data = "cmd=add_company&stock_id_or_name={text}"
+        await user.save()
+
+    @command
+    async def add_company_cancel(self, ctx: Context) -> Any:
         user = await User.get(id=ctx.user_id)
         user.temp_data = None
         await user.save()
         await ctx.reply_text("已取消")
 
     @command
-    async def list_companies(self, ctx: Context, index: int = 0) -> None:
+    async def list_companies(self, ctx: Context, index: int = 0) -> Any:
         user = await User.get(id=ctx.user_id)
         stocks = await user.stocks.all()
         if not stocks:
@@ -171,7 +179,7 @@ class CompanyCog(Cog):
         )
 
     @command
-    async def remove_company(self, ctx: Context, stock_id: str) -> None:
+    async def remove_company(self, ctx: Context, stock_id: str) -> Any:
         user = await User.get(id=ctx.user_id)
         stock = await Stock.get(id=stock_id)
         await user.stocks.remove(stock)
@@ -179,7 +187,7 @@ class CompanyCog(Cog):
         await ctx.reply_text(f"已將 {stock} 移出追蹤清單")
 
     @command
-    async def view_report(self, ctx: Context, stock_id: str) -> None:
+    async def view_report(self, ctx: Context, stock_id: str) -> Any:
         stock = await Stock.get(id=stock_id).prefetch_related("revenue_report")
         report = stock.revenue_report
         if report is None:
