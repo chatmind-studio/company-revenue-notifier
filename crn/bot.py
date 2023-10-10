@@ -13,7 +13,7 @@ from tortoise.exceptions import IntegrityError
 from .crawl import crawl_all_monthly_revenue_reports
 from .models import Stock, User
 from .rich_menu import RICH_MENU
-from .utils import get_now, get_report_title, get_today
+from .utils import get_now, get_report_title
 
 
 class CompanyRevenueNotifier(Bot):
@@ -44,10 +44,14 @@ class CompanyRevenueNotifier(Bot):
             user.line_notify_token = access_token
             user.line_notify_state = None
             await user.save()
+            await self.line_notify_api.notify(
+                access_token,
+                message="✅ 設定成功, 點擊此連結返回機器人: https://line.me/R/oaMessage/%40758svcdf",
+            )
 
         return web.Response(
             status=302,
-            headers={"Location": "https://line.me/R/oaMessage/%40758svcdf"},
+            headers={"Location": "https://line.me/R/oaMessage/%40linenotify"},
         )
 
     async def on_follow(self, event: FollowEvent) -> None:
@@ -63,8 +67,6 @@ class CompanyRevenueNotifier(Bot):
         user = await User.get(id=event.source.user_id)  # type: ignore
         if user.temp_data:
             event.message.text = user.temp_data.format(text=text)  # type: ignore
-            user.temp_data = None
-            await user.save()
 
         await super().on_message(event)
 
