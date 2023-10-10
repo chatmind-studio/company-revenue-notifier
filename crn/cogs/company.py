@@ -8,6 +8,8 @@ from line.models import (
     PostbackAction,
     QuickReply,
     QuickReplyItem,
+    TemplateMessage,
+    TextMessage,
 )
 
 from ..bot import CompanyRevenueNotifier
@@ -21,49 +23,65 @@ class CompanyCog(Cog):
         self.bot = bot
 
     @command
-    async def add_company(self, ctx: Context, stock_id: Optional[str] = None) -> None:
-        if stock_id is None:
+    async def add_company(
+        self, ctx: Context, stock_id_or_name: Optional[str] = None
+    ) -> None:
+        template_msg = TemplateMessage(
+            "追蹤新公司",
+            template=ButtonsTemplate(
+                "請輸入要追蹤的公司的股票代號或股票簡稱\n\n例如: 2330 或 台積電",
+                [
+                    PostbackAction("打開鍵盤", data="ignore", input_option="openKeyboard"),
+                    PostbackAction("❌ 取消", data="cmd=add_company_cancel"),
+                ],
+            ),
+        )
+
+        if stock_id_or_name is None:
             user = await User.get(id=ctx.user_id)
             user.temp_data = "cmd=add_company&stock_id={text}"
             await user.save()
 
-            return await ctx.reply_template(
-                "追蹤新公司",
-                template=ButtonsTemplate(
-                    "請輸入要追蹤的公司的股票代號或股票簡稱\n\n例如: 2330 或 台積電",
-                    [
-                        PostbackAction(
-                            "⌨️ 打開鍵盤", data="ignore", input_option="openKeyboard"
-                        ),
-                        PostbackAction("❌ 取消", data="cmd=add_company_cancel"),
-                    ],
-                ),
-            )
+            return await ctx.reply_multiple([template_msg])
 
-        if stock_id.isdigit():
-            stock = await Stock.get_or_none(id=stock_id)
+        if stock_id_or_name.isdigit():
+            stock = await Stock.get_or_none(id=stock_id_or_name)
             if stock is None:
                 async with self.bot.session.get(
-                    f"https://stock-api.seriaati.xyz/stocks/{stock_id}"
+                    f"https://stock-api.seriaati.xyz/stocks/{stock_id_or_name}"
                 ) as resp:
                     if resp.status != 200:
-                        return await self.add_company(ctx)
+                        return await ctx.reply_multiple(
+                            [
+                                TextMessage(
+                                    f"找不到股票代號為 {stock_id_or_name} 的公司, 請檢查後重新輸入"
+                                ),
+                                template_msg,
+                            ]
+                        )
 
                     stock = await Stock.create(
-                        id=stock_id, name=(await resp.json())["name"]
+                        id=stock_id_or_name, name=(await resp.json())["name"]
                     )
         else:
-            stock = await Stock.get_or_none(name=stock_id)
+            stock = await Stock.get_or_none(name=stock_id_or_name)
             if stock is None:
                 async with self.bot.session.get(
                     "https://stock-api.seriaati.xyz/stocks",
-                    params={"name": stock_id},
+                    params={"name": stock_id_or_name},
                 ) as resp:
                     if resp.status != 200:
-                        return await self.add_company(ctx)
+                        return await ctx.reply_multiple(
+                            [
+                                TextMessage(
+                                    f"找不到股票簡稱為 {stock_id_or_name} 的公司, 請檢查後重新輸入"
+                                ),
+                                template_msg,
+                            ]
+                        )
 
                     stock = await Stock.create(
-                        id=(await resp.json())["id"], name=stock_id
+                        id=(await resp.json())["id"], name=stock_id_or_name
                     )
 
         user = await User.get(id=ctx.user_id)
