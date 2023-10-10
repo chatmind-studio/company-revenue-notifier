@@ -26,20 +26,25 @@ class CompanyCog(Cog):
     async def add_company(
         self, ctx: Context, stock_id_or_name: Optional[str] = None
     ) -> None:
+        user = await User.get(id=ctx.user_id)
+        if not user.line_notify_token:
+            return await ctx.reply_text(
+                "錯誤: 尚未設定 LINE Notify, 您將無法在月營收公佈時收到通知, 請先點擊「推播通知」設定"
+            )
+
         template_msg = TemplateMessage(
             "追蹤新公司",
             template=ButtonsTemplate(
-                "請輸入要追蹤的公司的股票代號或股票簡稱\n\n例如: 2330 或 台積電",
+                "請輸入要追蹤的公司的股票代號或股票簡稱\n例如: 2330 或 台積電",
                 [
                     PostbackAction("打開鍵盤", data="ignore", input_option="openKeyboard"),
-                    PostbackAction("❌ 取消", data="cmd=add_company_cancel"),
+                    PostbackAction("取消", data="cmd=add_company_cancel"),
                 ],
             ),
         )
 
         if stock_id_or_name is None:
-            user = await User.get(id=ctx.user_id)
-            user.temp_data = "cmd=add_company&stock_id={text}"
+            user.temp_data = "cmd=add_company&stock_id_or_name={text}"
             await user.save()
 
             return await ctx.reply_multiple([template_msg])
@@ -54,7 +59,7 @@ class CompanyCog(Cog):
                         return await ctx.reply_multiple(
                             [
                                 TextMessage(
-                                    f"找不到股票代號為 {stock_id_or_name} 的公司, 請檢查後重新輸入"
+                                    f"錯誤: 找不到股票代號為 {stock_id_or_name} 的公司, 請檢查後重新輸入"
                                 ),
                                 template_msg,
                             ]
@@ -74,7 +79,7 @@ class CompanyCog(Cog):
                         return await ctx.reply_multiple(
                             [
                                 TextMessage(
-                                    f"找不到股票簡稱為 {stock_id_or_name} 的公司, 請檢查後重新輸入"
+                                    f"錯誤: 找不到股票簡稱為 {stock_id_or_name} 的公司, 請檢查後重新輸入"
                                 ),
                                 template_msg,
                             ]
@@ -84,15 +89,26 @@ class CompanyCog(Cog):
                         id=(await resp.json())["id"], name=stock_id_or_name
                     )
 
-        user = await User.get(id=ctx.user_id)
         await user.stocks.add(stock)
         await user.save()
 
         if stock.revenue_report:
-            return await ctx.reply_text(
-                f"已將 {stock} 加入追蹤清單\n\n在追蹤之前, {stock} 已公佈 {get_report_title()}, 點擊「已追蹤清單」即可查看"
+            return await ctx.reply_multiple(
+                [
+                    TextMessage(
+                        f"已將 {stock} 加入追蹤清單\n\n在追蹤之前, {stock} 已公佈 {get_report_title()}, 點擊「已追蹤清單」即可查看"
+                    ),
+                    template_msg,
+                ]
             )
-        await ctx.reply_text(f"已將 {stock} 加入追蹤清單")
+        await ctx.reply_multiple(
+            [
+                TextMessage(
+                    f"已將 {stock} 加入追蹤清單\n\n當 {stock} 公佈其上月營收時, 將會立即透過 LINE Notify 通知您"
+                ),
+                template_msg,
+            ]
+        )
 
     @command
     async def add_company_cancel(self, ctx: Context) -> None:
