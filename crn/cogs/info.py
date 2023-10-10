@@ -31,10 +31,10 @@ class InfoCog(Cog):
         )
         await ctx.reply_multiple(
             [
-                TemplateMessage("關於我們", template=template),
                 TextMessage(
                     "聊思工作室致力於透過 LINE 官方帳號和網頁應用等數位服務, 幫助中小企業或商家減少人力和時間成本。\n\n我們同時也是資深的 LINE 機器人和網頁應用開發者, 如果您有任何問題或需求, 歡迎聯絡我們。"
                 ),
+                TemplateMessage("關於我們", template=template),
             ]
         )
 
