@@ -13,7 +13,7 @@ from line.models import (
 from ..bot import CompanyRevenueNotifier
 
 
-class AboutCog(Cog):
+class InfoCog(Cog):
     def __init__(self, bot: CompanyRevenueNotifier):
         super().__init__(bot)
         self.bot = bot
@@ -21,7 +21,7 @@ class AboutCog(Cog):
     @command
     async def about(self, ctx: Context) -> Any:
         template = ButtonsTemplate(
-            "本 LINE 機器人為聊思工作室所屬的產品。",
+            "本 LINE 機器人所屬於聊思工作室。",
             [
                 URIAction("一對一私訊", uri="https://line.me/R/ti/p/%40644rcaca"),
                 # URIAction("查看其他作品", uri="https://line.me/R/ti/p/%40550sqmuw"),
@@ -51,8 +51,9 @@ class AboutCog(Cog):
                         uri="https://service.pxpayplus.com/pxplus_redirect/page_redirect/jumj?memberCode=MC14292876&amount=0",
                     ),
                     URIAction("信用卡或 PayPal", uri="https://ko-fi.com/chatmind"),
+                    PostbackAction("銀行匯款", data="cmd=bank_transfer"),
                 ],
-                title="捐款支持",
+                title="支持贊助",
             ),
         )
 
@@ -67,4 +68,14 @@ class AboutCog(Cog):
                     "點擊下方連結或掃描上方 QR Code\n\nhttps://www.jkopay.com/transfer?j=Transfer:909280661"
                 ),
             ]
+        )
+
+    @command
+    async def bank_transfer(self, ctx: Context) -> Any:
+        await ctx.reply_template(
+            "銀行匯款",
+            template=ButtonsTemplate(
+                "請透過一對一私訊取得銀行帳號",
+                [URIAction("一對一私訊", uri="https://line.me/R/ti/p/%40644rcaca")],
+            ),
         )
