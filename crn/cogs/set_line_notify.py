@@ -40,7 +40,7 @@ class SetNotifyCog(Cog):
             await user.save()
 
             template = ButtonsTemplate(
-                "尚未設定\n請參考上方圖示步驟, 點擊下方按鈕後進行設定",
+                "目前尚未設定 LINE Notify\n\n請參考上方圖示步驟, 點擊下方按鈕後進行設定",
                 [
                     URIAction(
                         label="前往設定", uri=self.bot.line_notify_api.get_oauth_uri(state)
@@ -60,7 +60,7 @@ class SetNotifyCog(Cog):
             )
         else:
             template = ButtonsTemplate(
-                "✅ 設定完成",
+                "✅ 已完成設定",
                 [
                     PostbackAction("發送測試訊息", data="cmd=send_test_message"),
                     PostbackAction("解除綁定", data="cmd=reset_line_notify"),

@@ -29,7 +29,7 @@ class CompanyCog(Cog):
         user = await User.get(id=ctx.user_id)
         if not user.line_notify_token:
             return await ctx.reply_text(
-                "錯誤: 尚未設定 LINE Notify, 您將無法在月營收公佈時收到通知, 請先點擊「推播通知」設定"
+                "❌ 錯誤: 目前尚未設定 LINE Notify\n\n您將無法在月營收公佈時收到通知, 請先點擊「推播設定」進行設定"
             )
 
         template_msg = TemplateMessage(
@@ -60,7 +60,7 @@ class CompanyCog(Cog):
                         return await ctx.reply_multiple(
                             [
                                 TextMessage(
-                                    f"錯誤: 找不到股票代號為 {stock_id_or_name} 的公司, 請檢查後重新輸入"
+                                    f"❌ 錯誤: 找不到股票代號為 {stock_id_or_name} 的公司\n請檢查後重新輸入"
                                 ),
                                 template_msg,
                             ]
@@ -80,7 +80,7 @@ class CompanyCog(Cog):
                         return await ctx.reply_multiple(
                             [
                                 TextMessage(
-                                    f"錯誤: 找不到股票簡稱為 {stock_id_or_name} 的公司, 請檢查後重新輸入"
+                                    f"❌ 錯誤: 找不到股票簡稱為 {stock_id_or_name} 的公司\n請檢查後重新輸入"
                                 ),
                                 template_msg,
                             ]
