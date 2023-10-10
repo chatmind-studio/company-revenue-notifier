@@ -46,7 +46,7 @@ class CompanyRevenueNotifier(Bot):
             await user.save()
             await self.line_notify_api.notify(
                 access_token,
-                message="✅ 設定成功, 點擊此連結返回機器人: https://line.me/R/oaMessage/%40758svcdf",
+                message="\n✅ 設定成功, 點擊此連結返回機器人: https://line.me/R/oaMessage/%40758svcdf",
             )
 
         return web.Response(
