@@ -8,8 +8,6 @@ from line.models import (
     PostbackAction,
     QuickReply,
     QuickReplyItem,
-    TemplateMessage,
-    TextMessage,
 )
 
 from ..bot import CompanyRevenueNotifier
@@ -24,18 +22,23 @@ class CompanyCog(Cog):
 
     @command
     async def add_company(self, ctx: Context, stock_id: Optional[str] = None) -> None:
-        template_message = TemplateMessage(
-            "追蹤新公司",
-            template=ButtonsTemplate(
-                "請輸入要追蹤的公司的股票代號或股票簡稱\n\n例如: 2330 或 台積電",
-                [PostbackAction("打開鍵盤", data="ignore", input_option="openKeyboard")],
-            ),
-        )
-        user = await User.get(id=ctx.user_id)
         if stock_id is None:
+            user = await User.get(id=ctx.user_id)
             user.temp_data = "cmd=add_company&stock_id={text}"
             await user.save()
-            return await ctx.reply_multiple([template_message])
+
+            return await ctx.reply_template(
+                "追蹤新公司",
+                template=ButtonsTemplate(
+                    "請輸入要追蹤的公司的股票代號或股票簡稱\n\n例如: 2330 或 台積電",
+                    [
+                        PostbackAction(
+                            "⌨️ 打開鍵盤", data="ignore", input_option="openKeyboard"
+                        ),
+                        PostbackAction("❌ 取消", data="cmd=add_company_cancel"),
+                    ],
+                ),
+            )
 
         if stock_id.isdigit():
             stock = await Stock.get_or_none(id=stock_id)
@@ -44,15 +47,8 @@ class CompanyCog(Cog):
                     f"https://stock-api.seriaati.xyz/stocks/{stock_id}"
                 ) as resp:
                     if resp.status != 200:
-                        user.temp_data = "cmd=add_company&stock_id={text}"
-                        await user.save()
+                        return await self.add_company(ctx)
 
-                        return await ctx.reply_multiple(
-                            [
-                                TextMessage(f"查無股票代號為 {stock_id} 的公司, 請確認後重新輸入"),
-                                template_message,
-                            ]
-                        )
                     stock = await Stock.create(
                         id=stock_id, name=(await resp.json())["name"]
                     )
@@ -64,15 +60,8 @@ class CompanyCog(Cog):
                     params={"name": stock_id},
                 ) as resp:
                     if resp.status != 200:
-                        user.temp_data = "cmd=add_company&stock_id={text}"
-                        await user.save()
+                        return await self.add_company(ctx)
 
-                        return await ctx.reply_multiple(
-                            [
-                                TextMessage(f"查無股票簡稱為 {stock_id} 的公司, 請確認後重新輸入"),
-                                template_message,
-                            ]
-                        )
                     stock = await Stock.create(
                         id=(await resp.json())["id"], name=stock_id
                     )
@@ -80,11 +69,19 @@ class CompanyCog(Cog):
         user = await User.get(id=ctx.user_id)
         await user.stocks.add(stock)
         await user.save()
+
         if stock.revenue_report:
             return await ctx.reply_text(
                 f"已將 {stock} 加入追蹤清單\n\n在追蹤之前, {stock} 已公佈 {get_report_title()}, 點擊「已追蹤清單」即可查看"
             )
         await ctx.reply_text(f"已將 {stock} 加入追蹤清單")
+
+    @command
+    async def add_company_cancel(self, ctx: Context) -> None:
+        user = await User.get(id=ctx.user_id)
+        user.temp_data = None
+        await user.save()
+        await ctx.reply_text("已取消")
 
     @command
     async def list_companies(self, ctx: Context, index: int = 0) -> None:
