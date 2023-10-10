@@ -40,13 +40,13 @@ class SetNotifyCog(Cog):
             await user.save()
 
             template = ButtonsTemplate(
-                "目前尚未設定 LINE Notify\n\n請參考上方圖示步驟, 點擊下方按鈕後進行設定",
+                "目前尚未設定 LINE Notify\n\n請參考上方圖示步驟, 點擊下方「前往設定」按鈕後進行設定",
                 [
                     URIAction(
                         label="前往設定",
                         uri=self.bot.line_notify_api.get_oauth_uri(state),
                     ),
-                    PostbackAction("檢查目前設定狀態", data="cmd=check_line_notify"),
+                    PostbackAction("檢查目前設定狀態", data="cmd=set_line_notify"),
                 ],
                 title="推播設定",
             )
