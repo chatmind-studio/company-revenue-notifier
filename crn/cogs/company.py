@@ -38,6 +38,7 @@ class CompanyCog(Cog):
                 "請輸入要追蹤的公司的股票代號或股票簡稱\n例如: 2330 或 台積電",
                 [
                     PostbackAction("打開鍵盤", data="ignore", input_option="openKeyboard"),
+                    PostbackAction("查看已追蹤清單", data="cmd=list_companies"),
                     PostbackAction("取消", data="cmd=add_company_cancel"),
                 ],
             ),
