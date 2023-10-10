@@ -29,20 +29,20 @@ class Stock(Model):
 
 
 class RevenueReport(Model):
-    current_month_revenue = fields.IntField()
+    current_month_revenue = fields.BigIntField()
     """當月營收"""
-    last_month_revenue = fields.IntField()
+    last_month_revenue = fields.BigIntField()
     """上月營收"""
-    last_year_current_month_revenue = fields.IntField()
+    last_year_current_month_revenue = fields.BigIntField()
     """去年當月營收"""
     last_month_diff = fields.FloatField()
     """上月比較增減(%)"""
     last_year_current_month_diff = fields.FloatField()
     """去年同月增減(%)"""
 
-    current_month_accum_revenue = fields.IntField()
+    current_month_accum_revenue = fields.BigIntField()
     """當月累計營收"""
-    last_year_accum_revenue = fields.IntField()
+    last_year_accum_revenue = fields.BigIntField()
     """去年累計營收"""
     last_season_diff = fields.FloatField()
     """前期比較增減(%)"""
