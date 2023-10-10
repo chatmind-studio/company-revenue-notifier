@@ -31,7 +31,7 @@ class SetNotifyCog(Cog):
 
             user.line_notify_token = None
             user.line_notify_state = None
-            await user.save()
+            return await user.save()
 
         if not user.line_notify_token:
             state = secrets.token_urlsafe()
@@ -39,13 +39,13 @@ class SetNotifyCog(Cog):
             await user.save()
 
             template = ButtonsTemplate(
-                "請點擊下方按鈕後按照下圖指示完成設定",
+                "❌ 尚未設定\n\n請點擊下方按鈕後按照圖片指示完成設定",
                 [
                     URIAction(
                         label="前往設定", uri=self.bot.line_notify_api.get_oauth_uri(state)
                     )
                 ],
-                title="通知設定",
+                title="推播設定",
             )
             image = ImageMessage(
                 original_content_url="https://i.imgur.com/3lUM6ow.png",
@@ -53,8 +53,8 @@ class SetNotifyCog(Cog):
             )
             await ctx.reply_multiple(
                 [
-                    TemplateMessage("通知設定", template=template),
                     image,
+                    TemplateMessage("推播設定", template=template),
                 ]
             )
         else:
@@ -62,11 +62,11 @@ class SetNotifyCog(Cog):
                 "✅ 設定完成",
                 [
                     PostbackAction("發送測試訊息", data="cmd=send_test_message"),
-                    PostbackAction("重新設定", data="cmd=reset_line_notify"),
+                    PostbackAction("解除綁定", data="cmd=reset_line_notify"),
                 ],
-                title="通知設定",
+                title="推播設定",
             )
-            await ctx.reply_template("通知設定", template=template)
+            await ctx.reply_template("推播設定", template=template)
 
     @command
     async def send_test_message(self, ctx: Context) -> Any:
@@ -89,10 +89,14 @@ class SetNotifyCog(Cog):
     @command
     async def reset_line_notify(self, ctx: Context) -> Any:
         template = ConfirmTemplate(
-            "確定要重新設定 LINE Notify 嗎?",
+            "確定要解除綁定 LINE Notify 嗎?\n您將無法收到任何來自此機器人的推播訊息",
             [
                 PostbackAction("確定", data="cmd=set_line_notify&reset=True"),
-                PostbackAction("取消", data="cmd=cancel"),
+                PostbackAction("取消", data="cmd=cancel_line_notify"),
             ],
         )
-        await ctx.reply_template("確認設定", template=template)
+        await ctx.reply_template("確認取消設定", template=template)
+
+    @command
+    async def cancel_line_notify(self, ctx: Context) -> Any:
+        await ctx.reply_text("已取消")
