@@ -1,7 +1,0 @@
-line.py @ git+https://github.com/seriaati/line.py
-tortoise-orm
-python-dotenv
-asyncpg
-fake-useragent
-beautifulsoup4
-lxml
