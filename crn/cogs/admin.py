@@ -41,3 +41,7 @@ class AdminCog(Cog):
             return await ctx.reply_text("權限不足")
         await self.bot.crawl_and_save_revenue_reports()
         await ctx.reply_text("已爬取並儲存所有公司的營收報表")
+
+    @command
+    async def get_user_ids(self, ctx: Context) -> None:
+        await ctx.reply_text(ctx.user_id)
