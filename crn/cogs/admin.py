@@ -30,10 +30,14 @@ class AdminCog(Cog):
 
     @command
     async def reset_reports(self, ctx: Context) -> None:
+        if ctx.user_id != self.admin_id:
+            return await ctx.reply_text("權限不足")
         await self.bot.reset_reports()
         await ctx.reply_text("已重置所有公司的營收報表")
 
     @command
     async def crawl_and_save_revenue_reports(self, ctx: Context) -> None:
+        if ctx.user_id != self.admin_id:
+            return await ctx.reply_text("權限不足")
         await self.bot.crawl_and_save_revenue_reports()
         await ctx.reply_text("已爬取並儲存所有公司的營收報表")
