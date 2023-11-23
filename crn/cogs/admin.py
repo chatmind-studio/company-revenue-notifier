@@ -43,5 +43,5 @@ class AdminCog(Cog):
         await ctx.reply_text("已爬取並儲存所有公司的營收報表")
 
     @command
-    async def get_user_ids(self, ctx: Context) -> None:
+    async def get_user_id(self, ctx: Context) -> None:
         await ctx.reply_text(ctx.user_id)
