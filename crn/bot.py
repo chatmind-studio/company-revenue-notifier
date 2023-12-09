@@ -11,7 +11,7 @@ from tortoise import Tortoise
 from tortoise.exceptions import IntegrityError
 
 from .crawl import crawl_monthly_revenue_reports
-from .models import Stock, User
+from .models import RevenueReport, Stock, User
 from .rich_menu import RICH_MENU
 from .utils import get_now, get_report_title, get_today
 
@@ -73,23 +73,22 @@ class CompanyRevenueNotifier(Bot):
     async def run_tasks(self) -> None:
         now = get_now()
         if now.hour == 0 and now.minute < 1 and now.day == 1:
-            logging.info("Resetting revenue reports")
-            await self.reset_reports()
+            await self.delete_reports()
         elif (now.minute == 30 or now.minute == 0) and now.day <= 15:
-            logging.info("Crawling and saving revenue reports")
             await self.crawl_and_save_revenue_reports()
 
-    async def reset_reports(self):
-        stocks = await Stock.all()
-        for stock in stocks:
-            if stock.revenue_report:
-                await stock.revenue_report.delete()
+    async def delete_reports(self):
+        logging.info("Deleting revenue reports")
+        await RevenueReport.all().delete()
+        logging.info("Deleted all revenue reports")
 
     async def crawl_and_save_revenue_reports(self):
+        logging.info("Crawling revenue reports")
         today = get_today()
         reports = await crawl_monthly_revenue_reports(
             self.session, today.year - 1911, today.month
         )
+        logging.info(f"Crawled {len(reports)} revenue reports")
         for stock, report in reports:
             if stock.revenue_report:
                 continue
@@ -106,6 +105,7 @@ class CompanyRevenueNotifier(Bot):
                     user.line_notify_token,
                     message=f"\n{stock} {get_report_title()}\n\n{report}",
                 )
+        logging.info("Saved all revenue reports")
 
     async def setup_hook(self) -> None:
         await Tortoise.init(

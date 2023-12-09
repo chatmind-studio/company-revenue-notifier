@@ -32,7 +32,7 @@ class AdminCog(Cog):
     async def reset_reports(self, ctx: Context) -> None:
         if ctx.user_id != self.admin_id:
             return await ctx.reply_text("權限不足")
-        await self.bot.reset_reports()
+        await self.bot.delete_reports()
         await ctx.reply_text("已重置所有公司的營收報表")
 
     @command
