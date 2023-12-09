@@ -82,8 +82,8 @@ class CompanyRevenueNotifier(Bot):
     async def reset_reports(self):
         stocks = await Stock.all()
         for stock in stocks:
-            stock.revenue_report = None  # type: ignore
-            await stock.save()
+            if stock.revenue_report:
+                await stock.revenue_report.delete()
 
     async def crawl_and_save_revenue_reports(self):
         today = get_today()
