@@ -10,10 +10,10 @@ from linebot.v3.webhooks import FollowEvent, MessageEvent
 from tortoise import Tortoise
 from tortoise.exceptions import IntegrityError
 
-from .crawl import crawl_all_monthly_revenue_reports
+from .crawl import crawl_monthly_revenue_reports
 from .models import Stock, User
 from .rich_menu import RICH_MENU
-from .utils import get_now, get_report_title
+from .utils import get_now, get_report_title, get_today
 
 
 class CompanyRevenueNotifier(Bot):
@@ -86,27 +86,22 @@ class CompanyRevenueNotifier(Bot):
             await stock.save()
 
     async def crawl_and_save_revenue_reports(self):
-        reports = await crawl_all_monthly_revenue_reports(self.session)
-        for stock_id, report in reports:
-            stock = await Stock.get_or_none(id=stock_id)
-            if stock is None:
-                async with self.session.get(
-                    f"https://stock-api.seriaati.xyz/stocks/{stock_id}"
-                ) as resp:
-                    if resp.status != 200:
-                        continue
-                    stock = await Stock.create(
-                        id=stock_id, name=(await resp.json())["name"]
-                    )
-
-            if stock.revenue_report:
+        today = get_today()
+        reports = await crawl_monthly_revenue_reports(
+            self.session, today.year - 1911, today.month
+        )
+        for stock, report in reports:
+            if (
+                stock.revenue_report
+                and stock.revenue_report.data_month == report.data_month
+            ):
                 continue
 
             await report.save()
             stock.revenue_report = report
             await stock.save()
 
-            users = await User.filter(stocks__id=stock_id)
+            users = await stock.users.all()
             for user in users:
                 if user.line_notify_token is None:
                     continue
