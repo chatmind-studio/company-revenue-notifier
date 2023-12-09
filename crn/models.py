@@ -8,12 +8,16 @@ from .utils import roc_date_to_western
 
 class User(Model):
     id = fields.CharField(max_length=33, pk=True)
-    line_notify_token: Optional[str] = fields.CharField(max_length=255, null=True)  # type: ignore
-    line_notify_state: Optional[str] = fields.CharField(max_length=255, null=True)  # type: ignore
+    line_notify_token: fields.Field[Optional[str]] = fields.CharField(
+        max_length=255, null=True
+    )  # type: ignore
+    line_notify_state: fields.Field[Optional[str]] = fields.CharField(
+        max_length=255, null=True
+    )  # type: ignore
     stocks: fields.ManyToManyRelation["Stock"] = fields.ManyToManyField(
         "models.Stock", related_name="users", through="user_stock"
     )
-    temp_data: Optional[str] = fields.TextField(null=True)  # type: ignore
+    temp_data: fields.Field[Optional[str]] = fields.TextField(null=True)  # type: ignore
 
 
 class Stock(Model):
