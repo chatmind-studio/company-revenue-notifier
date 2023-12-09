@@ -3,7 +3,7 @@ from typing import List, Optional, Self
 from tortoise import fields
 from tortoise.models import Model
 
-from .utils import remove_commas
+from .utils import roc_date_to_western
 
 
 class User(Model):
@@ -29,49 +29,23 @@ class Stock(Model):
 
 
 class RevenueReport(Model):
+    published_at = fields.DatetimeField()
+    data_month = fields.IntField()
+    stock: fields.BackwardOneToOneRelation[Stock]
+    industry = fields.CharField(max_length=100)
     current_month_revenue = fields.BigIntField()
-    """當月營收"""
     last_month_revenue = fields.BigIntField()
-    """上月營收"""
     last_year_current_month_revenue = fields.BigIntField()
-    """去年當月營收"""
     last_month_diff = fields.FloatField()
-    """上月比較增減(%)"""
     last_year_current_month_diff = fields.FloatField()
-    """去年同月增減(%)"""
-
     current_month_accum_revenue = fields.BigIntField()
-    """當月累計營收"""
     last_year_accum_revenue = fields.BigIntField()
-    """去年累計營收"""
     last_season_diff = fields.FloatField()
-    """前期比較增減(%)"""
-
-    notes: Optional[str] = fields.TextField(null=True)  # type: ignore
-    """備註"""
-
-    stock: fields.OneToOneRelation[Stock]
-
-    @classmethod
-    def parse(cls, strings: List[str]) -> Self:
-        return cls(
-            current_month_revenue=int(remove_commas(strings[2])) if strings[2] else 0,
-            last_month_revenue=int(remove_commas(strings[3])) if strings[3] else 0,
-            last_year_current_month_revenue=int(remove_commas(strings[4]))
-            if strings[4]
-            else 0,
-            last_month_diff=float(remove_commas(strings[5])) if strings[5] else 0.0,
-            last_year_current_month_diff=float(remove_commas(strings[6]))
-            if strings[6]
-            else 0.0,
-            current_month_accum_revenue=remove_commas(strings[7]) if strings[7] else 0,
-            last_year_accum_revenue=remove_commas(strings[8]) if strings[8] else 0,
-            last_season_diff=float(remove_commas(strings[9])) if strings[9] else 0.0,
-            notes=strings[10] if strings[10] != "-" else None,
-        )
+    notes: fields.Field[Optional[str]] = fields.TextField(null=True)  # type: ignore
 
     def __str__(self) -> str:
         return (
+            f"資料月份: {self.data_month}\n"
             f"當月營收: {self.current_month_revenue:,}\n"
             f"上月營收: {self.last_month_revenue:,}\n"
             f"去年當月營收: {self.last_year_current_month_revenue:,}\n"
@@ -81,4 +55,21 @@ class RevenueReport(Model):
             f"去年累計營收: {self.last_year_accum_revenue:,}\n"
             f"前期比較增減: {self.last_season_diff:+.2f}%\n"
             f"備註: {self.notes or '無'}"
+        )
+
+    @classmethod
+    def parse(cls, strings: List[str]) -> Self:
+        return cls(
+            published_at=roc_date_to_western(strings[0]),
+            data_date=int(strings[1].split("/")[-1]),
+            industry=strings[4],
+            current_month_revenue=int(strings[5]),
+            last_month_revenue=int(strings[6]),
+            last_year_current_month_revenue=int(strings[7]),
+            last_month_diff=float(strings[8]),
+            last_year_current_month_diff=float(strings[9]),
+            current_month_accum_revenue=int(strings[10]),
+            last_year_accum_revenue=int(strings[11]),
+            last_season_diff=float(strings[12]),
+            notes=strings[13] if strings[13] != "-" else None,
         )
