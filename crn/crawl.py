@@ -24,6 +24,7 @@ async def crawl_monthly_revenue_reports(
             text = await resp.text(encoding="utf-8")
             for row in text.split("\r\n")[1:-1]:
                 strings = row.split(",")
+                strings = [s.strip().strip('"') for s in strings]
                 stock = await Stock.get_or_none(id=strings[2])
                 if stock is None:
                     stock = await Stock.create(id=strings[2], name=strings[3])

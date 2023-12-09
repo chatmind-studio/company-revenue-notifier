@@ -3,8 +3,6 @@ from typing import List, Optional, Self
 from tortoise import fields
 from tortoise.models import Model
 
-from .utils import roc_date_to_western
-
 
 class User(Model):
     id = fields.CharField(max_length=33, pk=True)
@@ -33,8 +31,6 @@ class Stock(Model):
 
 
 class RevenueReport(Model):
-    published_at = fields.DatetimeField()
-    data_month = fields.IntField()
     stock: fields.BackwardOneToOneRelation[Stock]
     industry = fields.CharField(max_length=100)
     current_month_revenue = fields.BigIntField()
@@ -49,7 +45,6 @@ class RevenueReport(Model):
 
     def __str__(self) -> str:
         return (
-            f"資料月份: {self.data_month}\n"
             f"當月營收: {self.current_month_revenue:,}\n"
             f"上月營收: {self.last_month_revenue:,}\n"
             f"去年當月營收: {self.last_year_current_month_revenue:,}\n"
@@ -64,16 +59,14 @@ class RevenueReport(Model):
     @classmethod
     def parse(cls, strings: List[str]) -> Self:
         return cls(
-            published_at=roc_date_to_western(strings[0]),
-            data_date=int(strings[1].split("/")[-1]),
             industry=strings[4],
             current_month_revenue=int(strings[5]),
             last_month_revenue=int(strings[6]),
             last_year_current_month_revenue=int(strings[7]),
-            last_month_diff=float(strings[8]),
-            last_year_current_month_diff=float(strings[9]),
-            current_month_accum_revenue=int(strings[10]),
-            last_year_accum_revenue=int(strings[11]),
-            last_season_diff=float(strings[12]),
+            last_month_diff=float(strings[8]) if strings[8] else 0,
+            last_year_current_month_diff=float(strings[9]) if strings[9] else 0,
+            current_month_accum_revenue=int(strings[10]) if strings[10] else 0,
+            last_year_accum_revenue=int(strings[11]) if strings[11] else 0,
+            last_season_diff=float(strings[12]) if strings[12] else 0,
             notes=strings[13] if strings[13] != "-" else None,
         )

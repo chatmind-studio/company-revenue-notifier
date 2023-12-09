@@ -36,17 +36,3 @@ def split_list(input_list: List[T], n: int) -> List[List[T]]:
         raise ValueError("Parameter n must be a positive integer")
 
     return [input_list[i : i + n] for i in range(0, len(input_list), n)]
-
-
-def roc_date_to_western(date: str) -> datetime.date:
-    """
-    Convert ROC date to western date
-
-    Parameters:
-        date: ROC date in the format of "110/01/01"
-
-    Returns:
-        Western date in the format of "2021-01-01"
-    """
-    year, month, day = date.split("/")
-    return datetime.date(int(year) + 1911, int(month), int(day))

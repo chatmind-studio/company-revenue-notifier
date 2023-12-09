@@ -91,10 +91,7 @@ class CompanyRevenueNotifier(Bot):
             self.session, today.year - 1911, today.month
         )
         for stock, report in reports:
-            if (
-                stock.revenue_report
-                and stock.revenue_report.data_month == report.data_month
-            ):
+            if stock.revenue_report:
                 continue
 
             await report.save()
