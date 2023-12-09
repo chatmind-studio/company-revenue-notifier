@@ -117,6 +117,7 @@ class CompanyRevenueNotifier(Bot):
         )
         await Tortoise.generate_schemas()
 
+        await self.delete_all_rich_menus()
         rich_menu_id = await self.create_rich_menu(RICH_MENU, "assets/rich_menu.png")
         await self.line_bot_api.set_default_rich_menu(rich_menu_id)
 
