@@ -1,7 +1,7 @@
 from typing import Any
 
 from line import Cog, Context, command
-from line.models import ButtonsTemplate, PostbackAction, TemplateMessage
+from line.models import ButtonsTemplate, PostbackAction
 
 from ..bot import CompanyRevenueNotifier
 
