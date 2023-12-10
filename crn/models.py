@@ -45,6 +45,7 @@ class RevenueReport(Model):
 
     def __str__(self) -> str:
         return (
+            f"產業別: {self.industry}\n"
             f"當月營收: {self.current_month_revenue:,}\n"
             f"上月營收: {self.last_month_revenue:,}\n"
             f"去年當月營收: {self.last_year_current_month_revenue:,}\n"
