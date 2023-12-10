@@ -11,7 +11,7 @@ from tortoise import Tortoise
 from tortoise.exceptions import IntegrityError
 
 from .crawl import crawl_monthly_revenue_reports
-from .models import RevenueReport, Stock, User
+from .models import RevenueReport, User
 from .rich_menu import RICH_MENU
 from .utils import get_now, get_report_title, get_today
 
@@ -86,7 +86,7 @@ class CompanyRevenueNotifier(Bot):
         logging.info("Crawling revenue reports")
         today = get_today()
         reports = await crawl_monthly_revenue_reports(
-            self.session, today.year - 1911, today.month
+            self.session, today.year - 1911, today.month - 1
         )
         logging.info(f"Crawled {len(reports)} revenue reports")
         for stock, report in reports:
