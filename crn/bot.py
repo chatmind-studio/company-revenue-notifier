@@ -1,6 +1,7 @@
 import logging
 import os
 import sys
+from datetime import timedelta
 from pathlib import Path
 
 from aiohttp import web
@@ -85,8 +86,10 @@ class CompanyRevenueNotifier(Bot):
     async def crawl_and_save_revenue_reports(self):
         logging.info("Crawling revenue reports")
         today = get_today()
+        last_month_today = today - timedelta(days=30)
+        roc_year = last_month_today.year - 1911
         reports = await crawl_monthly_revenue_reports(
-            self.session, today.year - 1911, today.month - 1
+            self.session, roc_year, last_month_today.month
         )
         logging.info(f"Crawled {len(reports)} revenue reports")
         for stock, report in reports:
