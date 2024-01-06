@@ -12,7 +12,7 @@ from tortoise import Tortoise
 from tortoise.exceptions import IntegrityError
 
 from .crawl import crawl_monthly_revenue_reports
-from .models import RevenueReport, Stock, User
+from .models import Stock, User
 from .rich_menu import RICH_MENU
 from .utils import get_now, get_report_title, get_today
 
@@ -80,8 +80,12 @@ class CompanyRevenueNotifier(Bot):
 
     async def delete_reports(self):
         logging.info("Deleting revenue reports")
-        await RevenueReport.all().delete()
-        await Stock.all().update(revenue_report=None)
+        stocks = await Stock.all()
+        for stock in stocks:
+            if stock.revenue_report:
+                await stock.revenue_report.delete()
+                stock.revenue_report = None  # type: ignore
+                await stock.save()
         logging.info("Deleted all revenue reports")
 
     async def crawl_and_save_revenue_reports(self):
