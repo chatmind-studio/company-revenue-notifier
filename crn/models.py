@@ -45,7 +45,6 @@ class RevenueReport(Model):
 
     def __str__(self) -> str:
         return (
-            f"產業別: {self.industry}\n"
             f"當月營收: {self.current_month_revenue:,}\n"
             f"上月營收: {self.last_month_revenue:,}\n"
             f"去年當月營收: {self.last_year_current_month_revenue:,}\n"
@@ -60,14 +59,14 @@ class RevenueReport(Model):
     @classmethod
     def parse(cls, strings: List[str]) -> Self:
         return cls(
-            industry=strings[4],
-            current_month_revenue=int(strings[5]),
-            last_month_revenue=int(strings[6]),
-            last_year_current_month_revenue=int(strings[7]),
-            last_month_diff=float(strings[8]) if strings[8] else 0,
-            last_year_current_month_diff=float(strings[9]) if strings[9] else 0,
-            current_month_accum_revenue=int(strings[10]) if strings[10] else 0,
-            last_year_accum_revenue=int(strings[11]) if strings[11] else 0,
-            last_season_diff=float(strings[12]) if strings[12] else 0,
-            notes=strings[13] if strings[13] != "-" else None,
+            industry="新版本不再提供產業別",
+            current_month_revenue=int(strings[2]),
+            last_month_revenue=int(strings[3]) if strings[3] else 0,
+            last_year_current_month_revenue=int(strings[4]) if strings[4] else 0,
+            last_month_diff=float(strings[5]) if strings[5] else 0,
+            last_year_current_month_diff=float(strings[6]) if strings[6] else 0,
+            current_month_accum_revenue=int(strings[7]) if strings[7] else 0,
+            last_year_accum_revenue=int(strings[8]) if strings[8] else 0,
+            last_season_diff=float(strings[9]) if strings[9] else 0,
+            notes=strings[10] if strings[10] != "-" else None,
         )
