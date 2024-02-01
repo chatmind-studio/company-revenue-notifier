@@ -2,6 +2,7 @@ import os
 from contextlib import asynccontextmanager
 
 import aiohttp
+import uvicorn
 from dotenv import load_dotenv
 from fastapi import FastAPI, HTTPException, Response
 from tortoise import Tortoise
@@ -49,3 +50,7 @@ async def add_stock(user_id: str, stock_id: str) -> Response:
     stock, _ = await Stock.get_or_create(id=stock_id, name=stock_name)
     await user.stocks.add(stock)
     return Response(status_code=200, content="stock added")
+
+
+if __name__ == "__main__":
+    uvicorn.run("api:app", port=4501, log_level="info")

@@ -4,6 +4,11 @@
             "name": "crn",
             "script": "./run.py",
             "interpreter": "./.venv/bin/python"
+        },
+        {
+            "name": "crn-api",
+            "script": "./api.py",
+            "interpreter": "./.venv/bin/python"
         }
     ]
 }
