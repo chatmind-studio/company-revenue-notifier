@@ -23,6 +23,8 @@ async def crawl_monthly_revenue_reports(
                 text = await resp.text(encoding="big5hkscs")
                 soup = BeautifulSoup(text, "html.parser")
                 big_table = soup.find("table")
+                if big_table is None:
+                    continue
                 tables = big_table.tr.td.find_all("table")  # type: ignore
                 for table in tables:
                     rows = table.find_all("tr")[4:-1]
