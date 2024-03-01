@@ -84,14 +84,19 @@ class CompanyRevenueNotifier(Bot):
         await RevenueReport.all().delete()
         logging.info("Deleted all revenue reports")
 
-    async def crawl_and_save_revenue_reports(self):
+    async def crawl_and_save_revenue_reports(self) -> None:
         logging.info("Crawling revenue reports")
         today = get_today()
         last_month = today - timedelta(days=today.day)
         roc_year = last_month.year - 1911
-        reports = await crawl_monthly_revenue_reports(
-            self.session, roc_year, last_month.month
-        )
+        try:
+            reports = await crawl_monthly_revenue_reports(
+                self.session, roc_year, last_month.month
+            )
+        except Exception:
+            logging.exception("Failed to crawl revenue reports")
+            return
+
         logging.info(f"Crawled {len(reports)} revenue reports")
         for stock, report in reports:
             if stock.revenue_report:

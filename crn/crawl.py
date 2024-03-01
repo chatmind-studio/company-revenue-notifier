@@ -1,4 +1,3 @@
-import asyncio
 from typing import List, Tuple
 
 import aiohttp
@@ -40,5 +39,4 @@ async def crawl_monthly_revenue_reports(
                             stock = await Stock.create(id=stock_id, name=stock_name)
                         result.append((stock, RevenueReport.parse(strings)))
                         found_stock_ids.add(stock_id)
-            await asyncio.sleep(1)
     return result
