@@ -16,6 +16,8 @@ from .models import RevenueReport, Stock, User
 from .rich_menu import RICH_MENU
 from .utils import get_now, get_report_title, get_today
 
+LOGGER_ = logging.getLogger(__name__)
+
 
 class CompanyRevenueNotifier(Bot):
     def _setup_line_notify(self):
@@ -79,13 +81,13 @@ class CompanyRevenueNotifier(Bot):
             await self.crawl_and_save_revenue_reports()
 
     async def delete_reports(self):
-        logging.info("Deleting revenue reports")
+        LOGGER_.info("Deleting revenue reports")
         await Stock.raw("UPDATE stock SET revenue_report_id = NULL")
         await RevenueReport.all().delete()
-        logging.info("Deleted all revenue reports")
+        LOGGER_.info("Deleted all revenue reports")
 
     async def crawl_and_save_revenue_reports(self) -> None:
-        logging.info("Crawling revenue reports")
+        LOGGER_.info("Crawling revenue reports")
         today = get_today()
         last_month = today - timedelta(days=today.day)
         roc_year = last_month.year - 1911
@@ -94,10 +96,10 @@ class CompanyRevenueNotifier(Bot):
                 self.session, roc_year, last_month.month
             )
         except Exception:
-            logging.exception("Failed to crawl revenue reports")
+            LOGGER_.exception("Failed to crawl revenue reports")
             return
 
-        logging.info(f"Crawled {len(reports)} revenue reports")
+        LOGGER_.info(f"Crawled {len(reports)} revenue reports")
         for stock, report in reports:
             if stock.revenue_report:
                 continue
@@ -116,7 +118,7 @@ class CompanyRevenueNotifier(Bot):
                     message=f"\n{stock} {get_report_title()}\n\n{report}",
                 )
 
-        logging.info("Saved all revenue reports")
+        LOGGER_.info("Saved all revenue reports")
 
     async def setup_hook(self) -> None:
         await Tortoise.init(
@@ -133,7 +135,7 @@ class CompanyRevenueNotifier(Bot):
         self.app.add_routes([web.post("/line-notify", self._line_notify_callback)])
 
         for cog in Path("crn/cogs").glob("*.py"):
-            logging.info("Loading cog %s", cog.stem)
+            LOGGER_.info("Loading cog %s", cog.stem)
             self.add_cog(f"crn.cogs.{cog.stem}")
 
     async def on_close(self) -> None:

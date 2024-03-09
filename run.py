@@ -1,7 +1,9 @@
 import asyncio
+import logging
 import os
 
 from dotenv import load_dotenv
+from seria.logging import setup_logging
 
 from crn.bot import CompanyRevenueNotifier
 
@@ -22,4 +24,5 @@ async def run() -> None:
     await bot.run(port=7060)
 
 
-asyncio.run(run())
+with setup_logging(logging.INFO, log_filename="crn.log"):
+    asyncio.run(run())

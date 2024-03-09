@@ -15,6 +15,7 @@ uvicorn = "^0.24.0.post1"
 tortoise-orm = "^0.20.0"
 asyncpg = "^0.29.0"
 beautifulsoup4 = "^4.12.2"
+seria-library = {git = "https://github.com/seriaati/seria-library"}
 
 
 [build-system]
