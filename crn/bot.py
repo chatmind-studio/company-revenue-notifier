@@ -77,7 +77,7 @@ class CompanyRevenueNotifier(Bot):
         now = get_now()
         if now.hour == 0 and now.minute < 1 and now.day == 1:
             await self.delete_reports()
-        elif now.minute % 30 < 1 and now.day <= 15:
+        elif now.hour in {9, 17} and now.minute < 1 and now.day <= 15:
             await self.crawl_and_save_revenue_reports()
 
     async def delete_reports(self):
