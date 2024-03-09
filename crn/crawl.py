@@ -1,3 +1,5 @@
+import asyncio
+import logging
 from typing import List, Tuple
 
 import aiohttp
@@ -6,6 +8,7 @@ from fake_useragent import UserAgent
 
 from .models import RevenueReport, Stock
 
+LOGGER_ = logging.getLogger(__name__)
 ua = UserAgent()
 
 
@@ -19,6 +22,8 @@ async def crawl_monthly_revenue_reports(
     for company_type in ("sii", "otc"):
         for area in (0, 1):
             url = f"https://mops.twse.com.tw/nas/t21/{company_type}/t21sc03_{year}_{month}_{area}.html"
+            LOGGER_.info(f"Crawling {url}")
+
             async with session.get(url) as resp:
                 text = await resp.text(encoding="big5hkscs")
                 soup = BeautifulSoup(text, "html.parser")
@@ -39,4 +44,6 @@ async def crawl_monthly_revenue_reports(
                             stock = await Stock.create(id=stock_id, name=stock_name)
                         result.append((stock, RevenueReport.parse(strings)))
                         found_stock_ids.add(stock_id)
+
+            await asyncio.sleep(3.0)
     return result
