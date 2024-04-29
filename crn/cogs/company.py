@@ -38,7 +38,9 @@ class CompanyCog(Cog):
                 "請輸入要追蹤的公司的股票代號或股票簡稱\n例如: 2330 或 台積電",
                 [
                     PostbackAction(
-                        "打開鍵盤", data="cmd=open_keyboard", input_option="openKeyboard"
+                        "打開鍵盤",
+                        data="cmd=open_keyboard",
+                        input_option="openKeyboard",
                     ),
                     PostbackAction("查看已追蹤清單", data="cmd=list_companies"),
                     PostbackAction("取消", data="cmd=add_company_cancel"),
@@ -127,13 +129,34 @@ class CompanyCog(Cog):
         await ctx.reply_text("已取消")
 
     @command
-    async def list_companies(self, ctx: Context, index: int = 0) -> Any:
+    async def search_company(self, ctx: Context) -> Any:
+        user = await User.get(id=ctx.user_id)
+        user.temp_data = "cmd=list_companies&stock_id_or_name={text}"
+        await user.save()
+        await ctx.reply_text(
+            "請輸入欲查詢的公司的股票代號或簡稱\n例如:「2330」或「台積電」",
+            quick_reply=QuickReply(
+                [QuickReplyItem(PostbackAction(label="✖️ 取消", data="cmd=cancel"))]
+            ),
+        )
+
+    @command
+    async def list_companies(
+        self, ctx: Context, index: int = 0, stock_id_or_name: Optional[str] = None
+    ) -> Any:
         user = await User.get(id=ctx.user_id)
         stocks = await user.stocks.all()
         if not stocks:
             return await ctx.reply_text("您尚未追蹤任何公司")
-        split_stocks = split_list(stocks, 10)
 
+        if stock_id_or_name:
+            stocks = [
+                stock
+                for stock in stocks
+                if stock_id_or_name in stock.id or stock_id_or_name in stock.name
+            ]
+
+        split_stocks = split_list(stocks, 10)
         columns: List[CarouselColumn] = []
         for stock in split_stocks[index]:
             await stock.fetch_related("revenue_report")
@@ -169,6 +192,16 @@ class CompanyCog(Cog):
                     )
                 )
             )
+
+        quick_reply_items.append(
+            QuickReplyItem(
+                action=PostbackAction(
+                    label="🔎 搜尋公司",
+                    data="cmd=search_company",
+                    input_option="openKeyboard",
+                )
+            )
+        )
 
         await ctx.reply_template(
             "追蹤清單",
